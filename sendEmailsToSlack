@@ -1,0 +1,48 @@
+function sendEmailsToSlack() {
+    var label = GmailApp.getUserLabelByName('bloquant');
+    var messages = [];
+    var threads = label.getThreads();
+ 
+
+  
+    for (var i = 0; i < threads.length; i++) {
+        messages = messages.concat(threads[i].getMessages())
+    }
+
+    for (var i = 0; i < messages.length; i++) {
+        var message = messages[i];
+        Logger.log(message);
+
+        var output = '*Extranet Bloquant*';
+        output += '\n*from:* ' + message.getFrom();
+        output += '\n*to:* ' + message.getTo();
+        output += '\n*cc:* ' + message.getCc();
+        output += '\n*date:* ' + message.getDate();
+        output += '\n*Sujet:* ' + message.getSubject();
+        output += '\n*Message:* ' + message.getPlainBody();
+        output += '\n*Mail:* ' + 'https://mail.google.com/mail/u/0/' + message.getId();
+        Logger.log(output);
+
+        var payload = {
+            'username': 'Akuiteo',
+          'channel' : '#akuiteo-bloquant',
+            'icon_emoji': ':ghost:',
+          
+            'text': output            
+        };
+
+        var options = {
+            'method' : 'post',
+            'payload' : Utilities.jsonStringify(payload),
+        };
+
+        // replace this with your own Slack webhook URL
+        // https://crowdscores.slack.com/services
+        var webhookUrl = 'webhook';
+        UrlFetchApp.fetch(webhookUrl, options);
+   }
+
+   // remove the label from these threads so we don't send them to
+   // slack again next time the script is run
+   label.removeFromThreads(threads);
+}
