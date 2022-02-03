@@ -1,0 +1,60 @@
+function sendEmailsToSlackSamedi() {
+    var label = GmailApp.getUserLabelByName('EXTRANET');
+    var label2 =  GmailApp.getUserLabelByName('SlackSamedi');   
+    var messages = [];
+    var threads = label.getThreads();
+    var labelthreads = label.getThreads();
+    var max = Math.min(labelthreads.length,2);
+ 
+
+  
+    for (var i = 0; i < max; i++) {
+        label2.addToThread(threads[i]);
+        messages = messages.concat(threads[i].getMessages()[0])
+    }
+
+    for (var i = 0; i <max; i++) {
+        var message = messages[i];       
+        var messageDate = message.getDate();        
+        var messageDateDay = messageDate.getDay();
+     
+      
+      if(messageDateDay==6){
+        
+     
+
+
+        var output = '*Extranet*';
+        output += '\n*from:* ' + message.getFrom();
+        output += '\n*to:* ' + message.getTo();
+        output += '\n*cc:* ' + message.getCc();
+        output += '\n*date:* ' + message.getDate();
+        output += '\n*Sujet:* ' + message.getSubject();
+        output += '\n*Message:* ' + message.getPlainBody();
+        output += '\n*Mail:* ' + 'https://mail.google.com/mail/u/0/' + message.getId();
+        Logger.log(output);
+
+        var payload = {
+            'username': 'User',
+          'channel' : '#channel',
+            'icon_emoji': ' :runner:',
+          
+            'text': output            
+        };
+
+        var options = {
+            'method' : 'post',
+            'payload' : JSON.stringify(payload),
+        };
+
+        // replace this with your own Slack webhook URL
+        // https://crowdscores.slack.com/services
+        var webhookUrl = '';
+        UrlFetchApp.fetch(webhookUrl, options);
+   }
+ }
+   // remove the label from these threads so we don't send them to
+   // slack again next time the script is run
+   //label.removeFromThreads(threads);
+  
+}
